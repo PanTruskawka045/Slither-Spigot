@@ -14,6 +14,17 @@ repositories {
     maven {
         url = uri("https://repo.pantruskawka045.me/public")
     }
+    maven {
+        name = "kokscraft-engine"
+        url = uri("https://repo.pantruskawka045.me/Kokscraft-Engine")
+        credentials {
+            username = (project.findProperty("kokscraftUsername") as String?) ?: System.getenv("KOKSCRAFT_REPO_NAME")
+            password = (project.findProperty("kokscraftPassword") as String?) ?: System.getenv("KOKSCRAFT_REPO_SECRET")
+        }
+        authentication {
+            create<BasicAuthentication>("basic")
+        }
+    }
     mavenLocal()
 }
 
