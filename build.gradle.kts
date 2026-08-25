@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("io.papermc.paperweight.userdev") version "2.0.0-beta.18"
+    id("com.gradleup.shadow") version "9.6.0"
     id("xyz.jpenilla.resource-factory-bukkit-convention") version "1.3.0"
 }
 
@@ -8,6 +9,10 @@ group = "me.pan_truskawka045"
 version = "1.0-SNAPSHOT"
 
 var lombokVersion: String = "1.18.42"
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(24)
+}
 
 repositories {
     mavenCentral()
