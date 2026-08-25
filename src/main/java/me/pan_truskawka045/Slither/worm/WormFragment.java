@@ -4,6 +4,7 @@ import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.util.Vector;
@@ -13,12 +14,11 @@ public class WormFragment extends ArmorStand {
     private final WormEntity parent;
     private final WormFragment previous;
 
-    private double currentScale = 1;
     private double scale = 1;
     private int ticksWithoutPrevious = 0;
 
-    public WormFragment(Level level, double x, double y, double z, WormEntity parent, WormFragment previous) {
-        super(level, x, y, z);
+    public WormFragment(Level level, Vec3 position, WormEntity parent, WormFragment previous) {
+        super(level, position.x, position.y, position.z);
 
         this.parent = parent;
         this.previous = previous;
