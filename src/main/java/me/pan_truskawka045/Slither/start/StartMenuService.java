@@ -13,6 +13,7 @@ import me.pan_truskawka045.Slither.user.UserStorage;
 import me.pan_truskawka045.Slither.util.Components;
 import me.pan_truskawka045.Slither.util.SpigotUtil;
 import me.pan_truskawka045.injector.Init;
+import net.kyori.adventure.text.Component;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import org.bukkit.Bukkit;
@@ -45,6 +46,21 @@ public class StartMenuService {
 
             return display;
         };
+
+        MenuButton skinsList = new MenuButton(user, new Location(world, 129.0, 115.5, 257.05), () -> {
+            Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, SpigotUtil.getServerLevel(world));
+            TextDisplay bukkitEntity = (TextDisplay) display.getBukkitEntity();
+            bukkitEntity.setAlignment(TextDisplay.TextAlignment.LEFT);
+            bukkitEntity.setShadowed(false);
+            bukkitEntity.setDefaultBackground(false);
+            bukkitEntity.setBillboard(org.bukkit.entity.Display.Billboard.FIXED);
+            bukkitEntity.setTransformation(getScaledTransformation(0.75f));
+
+            return display;
+        }, 0, 0);
+        skinsList.setText(Components.LEFT_SIDE_TEXT);
+        startMenuView.addButton(skinsList);
+
         MenuButton start = new MenuButton(user, new Location(world, 126.0, 115.5, 257.05), textDisplayFactory, 2.6, 0.35);
 
         start.setText(Components.JOIN_GAME);
@@ -64,6 +80,7 @@ public class StartMenuService {
         skinLeft.onClick(() -> {
             int newIndex = (startMenuView.getSkinType().ordinal() - 1 + WormSkinType.values().length) % WormSkinType.values().length;
             startMenuView.setSkinType(WormSkinType.values()[newIndex]);
+            updateSkinList(user, startMenuView, skinsList);
         });
 
         startMenuView.addButton(skinLeft);
@@ -77,16 +94,34 @@ public class StartMenuService {
         skinRight.onClick(() -> {
             int newIndex = (startMenuView.getSkinType().ordinal() + 1) % WormSkinType.values().length;
             startMenuView.setSkinType(WormSkinType.values()[newIndex]);
+            updateSkinList(user, startMenuView, skinsList);
         });
 
         startMenuView.addButton(skinRight);
 
         user.setStartMenuView(startMenuView);
-        setupSkinPrevie(startMenuView, user);
+        setupSkinPreview(startMenuView, user);
+        updateSkinList(user, startMenuView, skinsList);
 
     }
 
-    private void setupSkinPrevie(StartMenuView startMenuView, SlitherUser user) {
+    private void updateSkinList(SlitherUser user, StartMenuView startMenuView, MenuButton skinsList) {
+        WormSkinType currentSkin = startMenuView.getSkinType();
+
+        Component component = Component.empty();
+
+        for (WormSkinType value : WormSkinType.values()) {
+            component = component.append(value == currentSkin ? Components.SKIN_SELECTED : Components.SKIN_NOT_SELECTED).appendSpace().append(value.getName());
+
+            if(value != WormSkinType.values()[WormSkinType.values().length - 1]) {
+                component = component.appendNewline();
+            }
+        }
+
+        skinsList.setText(component);
+    }
+
+    private void setupSkinPreview(StartMenuView startMenuView, SlitherUser user) {
         SkinPreview skinPreview = new SkinPreview(user);
         startMenuView.setSkinPreview(skinPreview);
         skinPreview.spawn();
