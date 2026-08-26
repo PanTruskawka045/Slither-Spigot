@@ -1,6 +1,8 @@
 package me.pan_truskawka045.Slither;
 
 import me.pan_truskawka045.Slither.food.FoodModule;
+import me.pan_truskawka045.Slither.game.GameModule;
+import me.pan_truskawka045.Slither.start.StartMenuModule;
 import me.pan_truskawka045.Slither.user.UserModule;
 import me.pan_truskawka045.injector.Bind;
 import me.pan_truskawka045.injector.Injector;
@@ -21,6 +23,8 @@ public class SpigotSlitherPlugin extends JavaPlugin {
 
         injector.registerModule(new UserModule());
         injector.registerModule(new FoodModule());
+        injector.registerModule(new GameModule());
+        injector.registerModule(new StartMenuModule());
 
         injector.injectAll();
         injector.initAll();
