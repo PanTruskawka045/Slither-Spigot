@@ -1,9 +1,12 @@
 package me.pan_truskawka045.Slither.worm;
 
 import me.pan_truskawka045.Slither.food.FoodStorage;
+import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -23,6 +26,7 @@ public class WormEntity extends Slime {
     private final Stack<WormFragment> fragments = new Stack<>();
 
     private final FoodStorage foodStorage;
+    private final AbstractWormSkin skin;
 
     private int points = 20;
     //    private int length = 20;
@@ -31,15 +35,20 @@ public class WormEntity extends Slime {
     private int ticksWithoutPassenger = 0;
 
 
-    public WormEntity(Level level, FoodStorage foodStorage) {
+    public WormEntity(Level level, FoodStorage foodStorage, AbstractWormSkin skin) {
         super(EntityType.SLIME, level);
         this.foodStorage = foodStorage;
+        this.skin = skin;
 
         setNoGravity(true);
         setDeltaMovement(Vec3.ZERO);
         this.moveControl = new MoveControl(this);
         this.setPersistenceRequired(false);
         this.persist = false;
+
+        addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, MobEffectInstance.INFINITE_DURATION,
+                0, false, false, false));
+        setDeltaMovement(Vec3.ZERO);
     }
 
 
@@ -151,7 +160,7 @@ public class WormEntity extends Slime {
             for (int i = currentSize; i < size; i++) {
                 WormFragment peek = this.fragments.isEmpty() ? null : this.fragments.getLast();
                 Vec3 position = peek == null ? this.position() : peek.position();
-                WormFragment wormFragment = new WormFragment(this.level(), position, this, peek);
+                WormFragment wormFragment = new WormFragment(this.level(), position, this, peek, skin, i);
                 this.fragments.add(wormFragment);
                 this.level().addFreshEntity(wormFragment);
             }

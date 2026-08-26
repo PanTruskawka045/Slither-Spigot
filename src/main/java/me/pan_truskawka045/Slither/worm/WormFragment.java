@@ -1,15 +1,15 @@
 package me.pan_truskawka045.Slither.worm;
 
+import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.util.Vector;
 
 public class WormFragment extends ArmorStand {
@@ -20,7 +20,7 @@ public class WormFragment extends ArmorStand {
     private double scale = 1;
     private int ticksWithoutPrevious = 0;
 
-    public WormFragment(Level level, Vec3 position, WormEntity parent, WormFragment previous) {
+    public WormFragment(Level level, Vec3 position, WormEntity parent, WormFragment previous, AbstractWormSkin skin, int index) {
         super(level, position.x, position.y, position.z);
 
         this.parent = parent;
@@ -30,7 +30,7 @@ public class WormFragment extends ArmorStand {
         this.setInvulnerable(true);
         this.setSilent(true);
         this.noPhysics = true;
-        this.equipment.set(EquipmentSlot.HEAD, new ItemStack(Items.PLAYER_HEAD));
+        this.equipment.set(EquipmentSlot.HEAD, CraftItemStack.asNMSCopy(index == 0 ? skin.getHeadItem() : skin.getBodyItem(index - 1)));
 
         this.persist = false;
     }

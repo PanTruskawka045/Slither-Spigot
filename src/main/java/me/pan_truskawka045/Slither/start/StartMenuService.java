@@ -67,7 +67,7 @@ public class StartMenuService {
 
         start.onHover(() -> start.setText(Components.JOIN_GAME_HOVER));
         start.onRelease(() -> start.setText(Components.JOIN_GAME));
-        start.onClick(() -> gameService.joinPlayer(user));
+        start.onClick(() -> gameService.joinPlayer(user, startMenuView.getSkinType()));
 
         startMenuView.addButton(start);
 
