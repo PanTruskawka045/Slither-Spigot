@@ -8,5 +8,7 @@ public class GameModule extends Module {
     @Override
     public void init() {
         create(GameService.class);
+
+        create(GameListener.class);
     }
 }

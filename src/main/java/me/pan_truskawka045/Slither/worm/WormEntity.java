@@ -2,12 +2,14 @@ package me.pan_truskawka045.Slither.worm;
 
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.monster.Slime;
+import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -25,18 +27,18 @@ public class WormEntity extends Slime {
     private int points = 20;
     //    private int length = 20;
     private double angle = Math.random() * Math.TAU;
-
     private double scale = 1;
+    private int ticksWithoutPassenger = 0;
+
 
     public WormEntity(Level level, FoodStorage foodStorage) {
         super(EntityType.SLIME, level);
         this.foodStorage = foodStorage;
 
         setNoGravity(true);
-        this.noPhysics = true;
         setDeltaMovement(Vec3.ZERO);
         this.moveControl = new MoveControl(this);
-
+        this.setPersistenceRequired(false);
     }
 
 
@@ -72,12 +74,37 @@ public class WormEntity extends Slime {
     protected void customServerAiStep(ServerLevel level) {
         this.updateScale();
         this.updateSize();
+        if (!this.passengers.isEmpty() && this.passengers.getFirst() instanceof ServerPlayer serverPlayer) {
+            tickPassenger(serverPlayer);
+            this.ticksWithoutPassenger = 0;
+        } else if (++this.ticksWithoutPassenger >= 10) {
+            this.discard();
+        }
+    }
+
+    private void tickPassenger(ServerPlayer serverPlayer) {
+        Input input = serverPlayer.getLastClientInput();
+        if (input.left() && !input.right()) {
+            turnLeft();
+        }
+        if (input.right() && !input.left()) {
+            turnRight();
+        }
+    }
+
+    @Override
+    public void tick() {
         this.move();
+        super.tick();
+
+        if (this.horizontalCollision) {
+            //TODO death
+        }
     }
 
     public double getEntityScale() {
         int score = Math.max(this.points, MIN_POINTS);
-        return Math.floor((Math.log(score) - 3) * 10D) / 10D;
+        return Math.floor((log(2, score) - 3) * 10D) / 10D;
     }
 
     private void updateScale() {
@@ -99,12 +126,7 @@ public class WormEntity extends Slime {
         double dX = Math.cos(angle) * MOVEMENT_SPEED;
         double dZ = Math.sin(angle) * MOVEMENT_SPEED;
 
-        double x = this.getX() + dX;
-        double y = this.getY();
-        double z = this.getZ() + dZ;
-
-        this.setDeltaMovement(Vec3.ZERO);
-        this.setPos(x, y, z);
+        this.setDeltaMovement(dX, 0, dZ);
         this.setYRot((float) Math.toDegrees(angle) - 90F);
     }
 
@@ -133,6 +155,18 @@ public class WormEntity extends Slime {
                 this.level().addFreshEntity(wormFragment);
             }
         }
+    }
+
+    private double log(double base, double value) {
+        return Math.log(value) / Math.log(base);
+    }
+
+    public void turnLeft() {
+        this.angle -= Math.toRadians(5);
+    }
+
+    public void turnRight() {
+        this.angle += Math.toRadians(5);
     }
 
 }

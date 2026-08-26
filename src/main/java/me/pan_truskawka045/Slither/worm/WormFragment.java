@@ -1,8 +1,11 @@
 package me.pan_truskawka045.Slither.worm;
 
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
@@ -22,6 +25,7 @@ public class WormFragment extends ArmorStand {
 
         this.parent = parent;
         this.previous = previous;
+        this.equipment.set(EquipmentSlot.HEAD, new ItemStack(Items.PLAYER_HEAD));
     }
 
     @Override
@@ -42,7 +46,7 @@ public class WormFragment extends ArmorStand {
             this.discard();
             return;
         }
-        double maxDistance = this.scale * 0.25;
+        double maxDistance = this.scale * 1; //0.25;
         CraftEntity previousEntity = this.previous.getBukkitEntity();
         Location previousLocation = previousEntity.getLocation().clone()
                 .add(0D, previousEntity.getEyeHeight(), 0D);
