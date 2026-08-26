@@ -1,5 +1,6 @@
 package me.pan_truskawka045.Slither.start.menu;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import me.pan_truskawka045.Slither.skin.WormSkinType;
@@ -18,7 +19,8 @@ public class StartMenuView {
 
     private final SlitherUser user;
 
-    private WormSkinType type = WormSkinType.CHERRY;
+    @Getter
+    private WormSkinType skinType = WormSkinType.CHERRY;
 
     @Setter
     private SkinPreview skinPreview;
@@ -44,7 +46,8 @@ public class StartMenuView {
     }
 
     public void setSkinType(WormSkinType type) {
-        this.type = type;
+        this.skinType = type;
         this.skinPreview.applySkin(type);
     }
+
 }
