@@ -39,6 +39,7 @@ public class WormEntity extends Slime {
         setDeltaMovement(Vec3.ZERO);
         this.moveControl = new MoveControl(this);
         this.setPersistenceRequired(false);
+        this.persist = false;
     }
 
 
@@ -142,13 +143,13 @@ public class WormEntity extends Slime {
         }
         if (currentSize > size) {
             for (int i = currentSize; i >= size; i--) {
-                WormFragment wormFragment = this.fragments.removeFirst();
+                WormFragment wormFragment = this.fragments.removeLast();
                 wormFragment.remove(RemovalReason.DISCARDED);
             }
         }
         if (currentSize < size) {
             for (int i = currentSize; i < size; i++) {
-                WormFragment peek = this.fragments.isEmpty() ? null : this.fragments.getFirst();
+                WormFragment peek = this.fragments.isEmpty() ? null : this.fragments.getLast();
                 Vec3 position = peek == null ? this.position() : peek.position();
                 WormFragment wormFragment = new WormFragment(this.level(), position, this, peek);
                 this.fragments.add(wormFragment);
@@ -162,11 +163,11 @@ public class WormEntity extends Slime {
     }
 
     public void turnLeft() {
-        this.angle -= Math.toRadians(5);
+        this.angle -= Math.toRadians(7);
     }
 
     public void turnRight() {
-        this.angle += Math.toRadians(5);
+        this.angle += Math.toRadians(7);
     }
 
 }

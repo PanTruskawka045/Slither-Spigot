@@ -11,7 +11,6 @@ import org.bukkit.World;
 public class GameService {
 
     private final World world;
-    private final FoodStorage foodService;
     private final WormFactory wormFactory;
 
     public void joinPlayer(SlitherUser user) {

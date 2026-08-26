@@ -10,5 +10,7 @@ public class GameModule extends Module {
         create(GameService.class);
 
         create(GameListener.class);
+
+        create(WormRemoveComponent.class);
     }
 }

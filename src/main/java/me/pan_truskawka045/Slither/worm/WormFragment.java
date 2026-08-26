@@ -25,7 +25,14 @@ public class WormFragment extends ArmorStand {
 
         this.parent = parent;
         this.previous = previous;
+        this.setInvisible(true);
+        this.setNoGravity(true);
+        this.setInvulnerable(true);
+        this.setSilent(true);
+        this.noPhysics = true;
         this.equipment.set(EquipmentSlot.HEAD, new ItemStack(Items.PLAYER_HEAD));
+
+        this.persist = false;
     }
 
     @Override
@@ -46,7 +53,9 @@ public class WormFragment extends ArmorStand {
             this.discard();
             return;
         }
-        double maxDistance = this.scale * 1; //0.25;
+
+        this.ticksWithoutPrevious = 0;
+        double maxDistance = this.scale * 0.5;
         CraftEntity previousEntity = this.previous.getBukkitEntity();
         Location previousLocation = previousEntity.getLocation().clone()
                 .add(0D, previousEntity.getEyeHeight(), 0D);
@@ -66,15 +75,25 @@ public class WormFragment extends ArmorStand {
         location.setYaw((float) Math.toDegrees(Math.atan2(-direction.getX(), direction.getZ())));
         location.setPitch((float) Math.toDegrees(Math.atan2(-direction.getY(),
                 Math.hypot(direction.getX(), direction.getZ()))));
-        fragmentEntity.setEyePosition(location);
+
+        this.teleportTo(location.getX(), location.getY() - this.getEyeHeight(), location.getZ());
+        this.setRot(location.getYaw(), 0F);
     }
 
     private void tickHead() {
+        if (this.parent.isRemoved()) {
+            if (++this.ticksWithoutPrevious >= 10) {
+                this.discard();
+            }
+            return;
+        }
+        this.ticksWithoutPrevious = 0;
 
         CraftEntity bukkitEntity = this.parent.getBukkitEntity();
         Location location = bukkitEntity.getLocation().clone().add(0, bukkitEntity.getEyeHeight(), 0);
 
-        this.getBukkitEntity().setEyePosition(location);
+        this.teleportTo(location.getX(), location.getY() - this.getEyeHeight(), location.getZ());
+        this.setRot(location.getYaw(), location.getPitch());
     }
 
     private void updateScale() {
