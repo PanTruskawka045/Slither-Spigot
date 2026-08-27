@@ -9,5 +9,6 @@ public class UserData {
     private long bestScore = -1;
     private long bestTimeLived = -1;
     private WormSkinType selectedSkin = WormSkinType.CHERRY;
+    private byte[] headSkin;
 
 }

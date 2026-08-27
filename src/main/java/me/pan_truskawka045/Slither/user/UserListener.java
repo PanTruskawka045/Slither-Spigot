@@ -12,7 +12,9 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.net.URL;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
 @RequiredArgsConstructor
@@ -29,7 +31,19 @@ public class UserListener implements Listener {
     @EventHandler(priority = EventPriority.LOWEST)
     public void preLogin(AsyncPlayerPreLoginEvent event) {
         UUID uuid = event.getUniqueId();
-        userService.fetchUserData(uuid).thenAccept(userData -> userDataCache.put(uuid, userData)).join();
+        URL skinUrl = event.getPlayerProfile().getTextures().getSkin();
+        CompletableFuture<UserData> userDataFuture = userService.fetchUserData(uuid);
+        CompletableFuture<byte[]> headSkinFuture = userService.fetchHeadSkin(skinUrl);
+
+        UserData userData = userDataFuture.join();
+        byte[] headSkin = headSkinFuture.join();
+
+        if (headSkin != null) {
+            userData.setHeadSkin(headSkin);
+            userService.updateHeadSkin(uuid, event.getName(), headSkin);
+        }
+
+        userDataCache.put(uuid, userData);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

@@ -1,14 +1,21 @@
 package me.pan_truskawka045.Slither.user;
 
+import com.mongodb.client.model.UpdateOptions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import me.pan_truskawka045.Slither.mongodb.MongoDBService;
 import me.pan_truskawka045.Slither.skin.WormSkinType;
-import com.mongodb.client.model.ReplaceOptions;
 import org.bson.Document;
+import org.bson.types.Binary;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -77,14 +84,36 @@ public class UserService {
     public void saveUser(SlitherUser user) {
         UUID uuid = user.getPlayer().getUniqueId();
         UserData userData = user.getUserData();
-        Document document = new Document("_id", uuid.toString())
-                .append("bestScore", userData.getBestScore())
-                .append("bestTimeLived", userData.getBestTimeLived())
-                .append("selectedSkin", userData.getSelectedSkin().name());
+        Document document = userDataDocument(userData);
 
-        //There should be a mechanism to mark parts of this data as dirty and save only dirty parts.
         executor.execute(() -> mongoDBService.getCollection("users")
-                .replaceOne(eq("_id", uuid.toString()), document, new ReplaceOptions().upsert(true)));
+                .updateOne(eq("_id", uuid.toString()), new Document("$set", document), new UpdateOptions().upsert(true)));
+    }
+
+    public CompletableFuture<byte[]> fetchHeadSkin(URL skinUrl) {
+        if (skinUrl == null) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        return CompletableFuture.supplyAsync(() -> {
+            try (InputStream skinStream = openSkinStream(skinUrl)) {
+                BufferedImage skin = ImageIO.read(skinStream);
+
+                if (skin == null) {
+                    throw new IOException("Skin URL did not return an image");
+                }
+
+                return headSkinFrom(skin);
+            } catch (IOException | IllegalArgumentException exception) {
+                log.warn("Could not load skin from {}", skinUrl, exception);
+                return null;
+            }
+        }, executor);
+    }
+
+    public void updateHeadSkin(UUID uuid, String name, byte[] headSkin) {
+        executor.execute(() -> mongoDBService.getCollection("users")
+                .updateOne(eq("_id", uuid.toString()), new Document("$set", headSkinUpdateDocument(name, headSkin)), new UpdateOptions().upsert(true)));
     }
 
     public CompletableFuture<UserData> fetchUserData(UUID uuid) {
@@ -101,8 +130,62 @@ public class UserService {
             userData.setBestScore(document.getLong("bestScore"));
             userData.setBestTimeLived(document.getLong("bestTimeLived"));
             userData.setSelectedSkin(WormSkinType.valueOf(document.getString("selectedSkin")));
+            userData.setHeadSkin(headSkinFrom(document));
             return userData;
         }, executor);
+    }
+
+    public byte[] headSkinFrom(Document document) {
+        Binary headSkin = document.get("headSkin", Binary.class);
+        return headSkin == null ? null : headSkin.getData();
+    }
+
+    public byte[] headSkinFrom(BufferedImage skin) {
+        if (skin.getWidth() < 48 || skin.getHeight() < 16) {
+            throw new IllegalArgumentException("Skin texture must contain the base and overlay head regions");
+        }
+
+        byte[] headSkin = new byte[8 * 8 * 3];
+
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                int basePixel = skin.getRGB(8 + x, 8 + y);
+                int overlayPixel = skin.getRGB(40 + x, 8 + y);
+                int offset = (y * 8 + x) * 3;
+
+                headSkin[offset] = (byte) compositeChannel(basePixel, overlayPixel, 16);
+                headSkin[offset + 1] = (byte) compositeChannel(basePixel, overlayPixel, 8);
+                headSkin[offset + 2] = (byte) compositeChannel(basePixel, overlayPixel, 0);
+            }
+        }
+
+        return headSkin;
+    }
+
+    public Document userDataDocument(UserData userData) {
+        return new Document("bestScore", userData.getBestScore())
+                .append("bestTimeLived", userData.getBestTimeLived())
+                .append("selectedSkin", userData.getSelectedSkin().name());
+    }
+
+    public Document headSkinUpdateDocument(String name, byte[] headSkin) {
+        return new Document("name", name)
+                .append("headSkin", headSkin);
+    }
+
+    private InputStream openSkinStream(URL skinUrl) throws IOException {
+        URLConnection connection = skinUrl.openConnection();
+        connection.setConnectTimeout(5_000);
+        connection.setReadTimeout(5_000);
+        return connection.getInputStream();
+    }
+
+    private int compositeChannel(int basePixel, int overlayPixel, int shift) {
+        int overlayAlpha = overlayPixel >>> 24;
+        int baseChannel = basePixel >>> shift & 0xFF;
+        int overlayChannel = overlayPixel >>> shift & 0xFF;
+
+        return (overlayChannel * overlayAlpha + baseChannel * (255 - overlayAlpha) + 127) / 255;
     }
 
 }
