@@ -1,5 +1,7 @@
 package me.pan_truskawka045.Slither;
 
+import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
+import me.pan_truskawka045.Slither.command.SlitherCommand;
 import me.pan_truskawka045.Slither.food.FoodModule;
 import me.pan_truskawka045.Slither.game.GameModule;
 import me.pan_truskawka045.Slither.listener.ListenerModule;
@@ -20,6 +22,10 @@ public class SpigotSlitherPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS, event -> {
+            event.registrar().register(SlitherCommand.create());
+        });
+
         injector.register(this);
         injector.register(Bukkit.getWorlds().getFirst(), World.class);
 

@@ -1,5 +1,6 @@
 package me.pan_truskawka045.Slither.worm;
 
+import lombok.Setter;
 import me.pan_truskawka045.Slither.food.Food;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.game.GameService;
@@ -44,6 +45,7 @@ public class WormEntity extends Slime {
     private final GameService gameService;
     private final SlitherUser rider;
 
+    @Setter
     private int points = 20;
     //    private int length = 20;
     private double angle = Math.random() * Math.TAU;
