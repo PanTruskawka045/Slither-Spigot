@@ -10,6 +10,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.craftbukkit.entity.CraftArmorStand;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -32,6 +33,7 @@ public class FoodEntity extends ArmorStand {
         this.noPhysics = true;
         this.persist = false;
         this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(color.getStainedGlass()));
+        ((CraftArmorStand)this.getBukkitEntity()).addDisabledSlots(org.bukkit.inventory.EquipmentSlot.values());
 
         AttributeInstance scaleAttribute = this.getAttribute(Attributes.SCALE);
         if (scaleAttribute != null) {

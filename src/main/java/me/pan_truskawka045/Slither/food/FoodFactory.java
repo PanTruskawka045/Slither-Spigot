@@ -10,10 +10,6 @@ public class FoodFactory {
 
     private final FoodStorage foodStorage;
 
-    public void create(Location location) {
-
-    }
-
     public FoodEntity createEntity(Location location, FoodColor color) {
         ServerLevel level = SpigotUtil.getServerLevel(location);
         FoodEntity foodEntity = new FoodEntity(level, SpigotUtil.toVec3(location), color);
