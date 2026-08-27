@@ -5,6 +5,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 
+import java.util.Locale;
+
 public class Components {
 
     // Uzupełnij treścią wyświetlaną po lewej stronie menu startowego.
@@ -26,6 +28,12 @@ public class Components {
         return Component.text("%arg0 was eliminated by %arg1").color(NamedTextColor.GRAY)
                 .replaceText(builder -> builder.matchLiteral("%arg0").replacement(Component.text(victim).color(NamedTextColor.RED)))
                 .replaceText(builder -> builder.matchLiteral("%arg1").replacement(Component.text(killer).color(NamedTextColor.RED)));
+    }
+
+    public static Component wormPoints(int points) {
+        String formattedPoints = String.format(Locale.ROOT, "%,d", points);
+        return Component.text("Points: ").color(NamedTextColor.GRAY)
+                .append(Component.text(formattedPoints).color(NamedTextColor.GREEN));
     }
 
 }

@@ -11,8 +11,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.craftbukkit.entity.CraftArmorStand;
+import org.bukkit.event.entity.EntityRemoveEvent;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 public class FoodEntity extends ArmorStand {
 
@@ -32,6 +34,7 @@ public class FoodEntity extends ArmorStand {
         this.setSilent(true);
         this.noPhysics = true;
         this.persist = false;
+        this.onlyThisWorldSession = true;
         this.setItemSlot(EquipmentSlot.HEAD, new ItemStack(color.getStainedGlass()));
         ((CraftArmorStand)this.getBukkitEntity()).addDisabledSlots(org.bukkit.inventory.EquipmentSlot.values());
 
@@ -64,8 +67,9 @@ public class FoodEntity extends ArmorStand {
     }
 
     @Override
-    public void remove(RemovalReason reason) {
-        super.remove(reason);
+    public void remove(RemovalReason reason, EntityRemoveEvent.@Nullable Cause eventCause) {
+        super.remove(reason, eventCause);
         innerBlock.remove(reason);
     }
+
 }
