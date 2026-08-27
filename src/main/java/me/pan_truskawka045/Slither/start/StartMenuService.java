@@ -9,6 +9,7 @@ import me.pan_truskawka045.Slither.start.menu.StartMenuView;
 import me.pan_truskawka045.Slither.start.menu.TextDisplayFactory;
 import me.pan_truskawka045.Slither.start.skin.SkinPreview;
 import me.pan_truskawka045.Slither.user.SlitherUser;
+import me.pan_truskawka045.Slither.user.UserService;
 import me.pan_truskawka045.Slither.user.UserStorage;
 import me.pan_truskawka045.Slither.util.Components;
 import me.pan_truskawka045.Slither.util.SpigotUtil;
@@ -31,6 +32,7 @@ public class StartMenuService {
     private final UserStorage userStorage;
     private final World world;
     private final GameService gameService;
+    private final UserService userService;
 
     public void sendInitial(SlitherUser user) {
         StartMenuView startMenuView = new StartMenuView(user);
@@ -79,8 +81,7 @@ public class StartMenuService {
         skinLeft.onRelease(() -> skinLeft.setText(Components.SWITCH_SKIN_LEFT));
         skinLeft.onClick(() -> {
             int newIndex = (startMenuView.getSkinType().ordinal() - 1 + WormSkinType.values().length) % WormSkinType.values().length;
-            startMenuView.setSkinType(WormSkinType.values()[newIndex]);
-            updateSkinList(user, startMenuView, skinsList);
+            selectSkin(user, startMenuView, skinsList, WormSkinType.values()[newIndex]);
         });
 
         startMenuView.addButton(skinLeft);
@@ -93,8 +94,7 @@ public class StartMenuService {
         skinRight.onRelease(() -> skinRight.setText(Components.SWITCH_SKIN_RIGHT));
         skinRight.onClick(() -> {
             int newIndex = (startMenuView.getSkinType().ordinal() + 1) % WormSkinType.values().length;
-            startMenuView.setSkinType(WormSkinType.values()[newIndex]);
-            updateSkinList(user, startMenuView, skinsList);
+            selectSkin(user, startMenuView, skinsList, WormSkinType.values()[newIndex]);
         });
 
         startMenuView.addButton(skinRight);
@@ -121,12 +121,19 @@ public class StartMenuService {
         skinsList.setText(component);
     }
 
+    private void selectSkin(SlitherUser user, StartMenuView startMenuView, MenuButton skinsList, WormSkinType skinType) {
+        startMenuView.setSkinType(skinType);
+        user.getUserData().setSelectedSkin(skinType);
+        userService.saveUser(user);
+        updateSkinList(user, startMenuView, skinsList);
+    }
+
     private void setupSkinPreview(StartMenuView startMenuView, SlitherUser user) {
         SkinPreview skinPreview = new SkinPreview(user);
         startMenuView.setSkinPreview(skinPreview);
         skinPreview.spawn();
 
-        startMenuView.setSkinType(WormSkinType.CHERRY); //TODO get from database
+        startMenuView.setSkinType(user.getUserData().getSelectedSkin());
 
     }
 

@@ -39,6 +39,7 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     implementation("me.pan_truskawka045:Injector:1.0-SNAPSHOT")
+    implementation("org.mongodb:mongodb-driver-sync:5.9.0")
 
     compileOnly("org.projectlombok:lombok:$lombokVersion")
     annotationProcessor("org.projectlombok:lombok:$lombokVersion")

@@ -2,6 +2,7 @@ package me.pan_truskawka045.Slither;
 
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.pan_truskawka045.Slither.command.SlitherCommand;
+import me.pan_truskawka045.Slither.mongodb.MongoDBModule;
 import me.pan_truskawka045.Slither.food.FoodModule;
 import me.pan_truskawka045.Slither.game.GameModule;
 import me.pan_truskawka045.Slither.listener.ListenerModule;
@@ -29,6 +30,7 @@ public class SpigotSlitherPlugin extends JavaPlugin {
         injector.register(this);
         injector.register(Bukkit.getWorlds().getFirst(), World.class);
 
+        injector.registerModule(new MongoDBModule());
         injector.registerModule(new UserModule());
         injector.registerModule(new FoodModule());
         injector.registerModule(new WormModule());

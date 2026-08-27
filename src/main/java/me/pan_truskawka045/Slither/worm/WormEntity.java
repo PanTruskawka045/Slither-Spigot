@@ -141,7 +141,7 @@ public class WormEntity extends Slime {
                     for (Entity passenger : this.getPassengers()) {
                         passenger.dismountTo(pos.x, pos.y, pos.z);
                     }
-                    this.gameService.eliminatePlayer(this.rider);
+                    this.gameService.eliminatePlayer(this.rider, this);
                     this.discard();
                 });
     }
@@ -208,7 +208,7 @@ public class WormEntity extends Slime {
             for (Entity passenger : this.getPassengers()) {
                 passenger.dismountTo(pos.x, pos.y, pos.z);
             }
-            this.gameService.eliminatePlayer(this.rider);
+            this.gameService.eliminatePlayer(this.rider, this);
             this.discard();
         }
     }

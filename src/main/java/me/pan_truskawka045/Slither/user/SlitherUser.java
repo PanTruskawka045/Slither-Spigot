@@ -15,4 +15,6 @@ public class SlitherUser {
 
     private StartMenuView startMenuView;
 
+    private UserData userData = new UserData();
+
 }

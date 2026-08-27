@@ -41,4 +41,17 @@ public class Components {
                 .append(Component.text(formattedPoints).color(NamedTextColor.GREEN));
     }
 
+    public static Component newBestScore(int points) {
+        String formattedPoints = String.format(Locale.ROOT, "%,d", points);
+        return Component.text("New points record: ").color(NamedTextColor.GOLD)
+                .append(Component.text(formattedPoints).color(NamedTextColor.GREEN));
+    }
+
+    public static Component newBestTimeLived(long ticks) {
+        long seconds = ticks / 20;
+        long minutes = seconds / 60;
+        return Component.text("New survival-time record: ").color(NamedTextColor.GOLD)
+                .append(Component.text(String.format(Locale.ROOT, "%d:%02d", minutes, seconds % 60)).color(NamedTextColor.GREEN));
+    }
+
 }

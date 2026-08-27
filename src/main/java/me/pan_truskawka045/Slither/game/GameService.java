@@ -8,6 +8,9 @@ import me.pan_truskawka045.Slither.food.FoodReason;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.skin.WormSkinType;
 import me.pan_truskawka045.Slither.user.SlitherUser;
+import me.pan_truskawka045.Slither.user.UserService;
+import me.pan_truskawka045.Slither.util.Components;
+import me.pan_truskawka045.Slither.worm.WormEntity;
 import me.pan_truskawka045.Slither.worm.WormFactory;
 import me.pan_truskawka045.injector.Init;
 import org.bukkit.Bukkit;
@@ -24,6 +27,7 @@ public class GameService {
     private final FoodFactory foodFactory;
     private final FoodStorage foodStorage;
     private final SpigotSlitherPlugin spigotSlitherPlugin;
+    private final UserService userService;
 
     @Init
     private void init() {
@@ -38,9 +42,28 @@ public class GameService {
         wormFactory.createWorm(user, position[0], position[1], skinType);
     }
 
-    public void eliminatePlayer(SlitherUser user) {
+    public void eliminatePlayer(SlitherUser user, WormEntity wormEntity) {
 
         user.getPlayer().teleport(new Location(world, 128.0, 115, 265.0, -180, 0));
+
+        int points = wormEntity.getPoints();
+        boolean save = false;
+        if (points > user.getUserData().getBestScore()) {
+            user.getUserData().setBestScore(points);
+            user.getPlayer().sendMessage(Components.newBestScore(points));
+            save = true;
+        }
+
+        long timeLived = wormEntity.tickCount;
+        if (timeLived > user.getUserData().getBestTimeLived()) {
+            user.getUserData().setBestTimeLived(timeLived);
+            user.getPlayer().sendMessage(Components.newBestTimeLived(timeLived));
+            save = true;
+        }
+
+        if (save) {
+            userService.saveUser(user);
+        }
 
     }
 
