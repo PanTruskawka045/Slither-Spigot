@@ -3,7 +3,9 @@ package me.pan_truskawka045.Slither.worm;
 import lombok.Getter;
 import lombok.Setter;
 import me.pan_truskawka045.Slither.food.Food;
+import me.pan_truskawka045.Slither.food.FoodColor;
 import me.pan_truskawka045.Slither.food.FoodFactory;
+import me.pan_truskawka045.Slither.food.FoodReason;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.game.GameService;
 import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
@@ -25,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Sound;
 
 import java.util.Stack;
@@ -56,6 +59,7 @@ public class WormEntity extends Slime {
     private double scale = 1;
     private int ticksWithoutPassenger = 0;
     private int boostTicksRemaining = 0;
+    private int speedupPointsSpent = 0;
 
 
     public WormEntity(SlitherUser rider, Level level, FoodStorage foodStorage, FoodFactory foodFactory,
@@ -168,7 +172,17 @@ public class WormEntity extends Slime {
         if (input.jump() && this.boostTicksRemaining == 0 && this.points > 20) {
             this.points--;
             this.boostTicksRemaining = BOOST_TICKS;
+            if (++this.speedupPointsSpent % 10 == 0) {
+                spawnSpeedupFood();
+            }
         }
+    }
+
+    private void spawnSpeedupFood() {
+        Vec3 position = this.fragments.getLast().position();
+        FoodColor[] colors = FoodColor.values();
+        FoodColor color = colors[(int) (Math.random() * colors.length)];
+        this.foodFactory.create(new Location(this.level().getWorld(), position.x, 101, position.z), color, FoodReason.SPEEDUP);
     }
 
     private String getRiderName() {
