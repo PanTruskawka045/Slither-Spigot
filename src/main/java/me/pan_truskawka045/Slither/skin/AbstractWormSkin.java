@@ -8,6 +8,10 @@ public abstract class AbstractWormSkin {
 
     public abstract ItemStack getBodyItem(int index);
 
+    public abstract int getHeadColor();
+
+    public abstract int getBodyColor(int index);
+
     public void tick() {
 
     }

@@ -8,10 +8,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.entity.CraftEntity;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
+import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class WormFragment extends ArmorStand {
@@ -20,6 +23,7 @@ public class WormFragment extends ArmorStand {
     @Getter
     private final WormEntity parent;
     private final WormFragment previous;
+    private final int color;
 
     private double scale = 1;
     private int ticksWithoutPrevious = 0;
@@ -29,6 +33,7 @@ public class WormFragment extends ArmorStand {
 
         this.parent = parent;
         this.previous = previous;
+        this.color = index == 0 ? skin.getHeadColor() : skin.getBodyColor(index - 1);
         this.setInvisible(true);
         this.setNoGravity(true);
         this.setInvulnerable(true);
@@ -47,6 +52,7 @@ public class WormFragment extends ArmorStand {
             tickBody();
         }
         updateScale();
+        spawnSpeedParticle();
     }
 
     boolean belongsTo(WormEntity worm) {
@@ -148,6 +154,22 @@ public class WormFragment extends ArmorStand {
             scaleAttribute.setBaseValue(this.scale);
         }
 
+    }
+
+    private void spawnSpeedParticle() {
+        if (!this.parent.isSpeeding()) {
+            return;
+        }
+
+        Vec3 position = this.position();
+
+        Particle.DUST.builder()
+                .color(Color.fromRGB(this.color), 1F)
+                .count(3)
+                .location(this.level().getWorld(), position.x, position.y + this.getEyeHeight() + 0.2 * this.scale, position.z)
+                .receivers(64, false)
+                .offset(0.2 * this.scale, 0.2 * this.scale, 0.2 * this.scale)
+                .spawn();
     }
 
 }

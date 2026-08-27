@@ -31,4 +31,14 @@ public class StaticWormSkin extends AbstractWormSkin {
         });
         return itemStack;
     }
+
+    @Override
+    public int getHeadColor() {
+        return skinPart.getColor();
+    }
+
+    @Override
+    public int getBodyColor(int index) {
+        return skinPart.getColor();
+    }
 }

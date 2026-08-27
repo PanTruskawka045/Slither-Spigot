@@ -29,6 +29,7 @@ import java.util.Stack;
 public class WormEntity extends Slime {
 
     private static final int ACTION_BAR_INTERVAL_TICKS = 10;
+    private static final int BOOST_TICKS = 3;
     private static final int INITIAL_BODY_PARTS = 2;
     private static final int MAX_BODY_PARTS = 411;
     private static final double BODY_PART_GROWTH_EXPONENT = 2.25D;
@@ -48,6 +49,7 @@ public class WormEntity extends Slime {
     private double angle = Math.random() * Math.TAU;
     private double scale = 1;
     private int ticksWithoutPassenger = 0;
+    private int boostTicksRemaining = 0;
 
 
     public WormEntity(SlitherUser rider, Level level, FoodStorage foodStorage, AbstractWormSkin skin, GameService gameService) {
@@ -155,6 +157,10 @@ public class WormEntity extends Slime {
         if (input.right() && !input.left()) {
             turnRight();
         }
+        if (input.jump() && this.boostTicksRemaining == 0 && this.points > 20) {
+            this.points--;
+            this.boostTicksRemaining = BOOST_TICKS;
+        }
     }
 
     private String getRiderName() {
@@ -177,6 +183,10 @@ public class WormEntity extends Slime {
 
     public double getEntityScale() {
         return getEntityScale(this.points);
+    }
+
+    public boolean isSpeeding() {
+        return this.boostTicksRemaining > 0;
     }
 
     private void sendPointsActionBar(ServerPlayer serverPlayer) {
@@ -205,8 +215,14 @@ public class WormEntity extends Slime {
     }
 
     private void move() {
-        double dX = Math.cos(angle) * MOVEMENT_SPEED;
-        double dZ = Math.sin(angle) * MOVEMENT_SPEED;
+        double movementSpeed = MOVEMENT_SPEED;
+        if (this.isSpeeding()) {
+            movementSpeed *= 2D;
+            this.boostTicksRemaining--;
+        }
+
+        double dX = Math.cos(angle) * movementSpeed;
+        double dZ = Math.sin(angle) * movementSpeed;
 
         this.setDeltaMovement(dX, 0, dZ);
         this.setYRot((float) Math.toDegrees(angle) - 90F);
