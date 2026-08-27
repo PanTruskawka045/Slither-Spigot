@@ -1,6 +1,7 @@
 package me.pan_truskawka045.Slither.worm;
 
 import lombok.RequiredArgsConstructor;
+import me.pan_truskawka045.Slither.food.FoodFactory;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.game.GameService;
 import me.pan_truskawka045.Slither.skin.WormSkinType;
@@ -15,6 +16,7 @@ import org.bukkit.entity.Player;
 public class WormFactory {
 
     private final World world;
+    private final FoodFactory foodFactory;
     private final FoodStorage foodService;
 
     @Inject
@@ -24,7 +26,7 @@ public class WormFactory {
 
         ServerLevel serverLevel = SpigotUtil.getServerLevel(world);
 
-        WormEntity wormEntity = new WormEntity(rider, serverLevel, foodService, skinType.create(), gameService);
+        WormEntity wormEntity = new WormEntity(rider, serverLevel, foodService, foodFactory, skinType.create(), gameService);
         wormEntity.setPos(x, 101, z);
         serverLevel.addFreshEntity(wormEntity);
 

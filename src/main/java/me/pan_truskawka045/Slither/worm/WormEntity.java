@@ -1,7 +1,9 @@
 package me.pan_truskawka045.Slither.worm;
 
+import lombok.Getter;
 import lombok.Setter;
 import me.pan_truskawka045.Slither.food.Food;
+import me.pan_truskawka045.Slither.food.FoodFactory;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.game.GameService;
 import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
@@ -41,10 +43,12 @@ public class WormEntity extends Slime {
     private final Stack<WormFragment> fragments = new Stack<>();
 
     private final FoodStorage foodStorage;
+    private final FoodFactory foodFactory;
     private final AbstractWormSkin skin;
     private final GameService gameService;
     private final SlitherUser rider;
 
+    @Getter
     @Setter
     private int points = 20;
     //    private int length = 20;
@@ -54,9 +58,11 @@ public class WormEntity extends Slime {
     private int boostTicksRemaining = 0;
 
 
-    public WormEntity(SlitherUser rider, Level level, FoodStorage foodStorage, AbstractWormSkin skin, GameService gameService) {
+    public WormEntity(SlitherUser rider, Level level, FoodStorage foodStorage, FoodFactory foodFactory,
+                      AbstractWormSkin skin, GameService gameService) {
         super(EntityType.SLIME, level);
         this.foodStorage = foodStorage;
+        this.foodFactory = foodFactory;
         this.skin = skin;
         this.gameService = gameService;
         this.rider = rider;
@@ -179,7 +185,17 @@ public class WormEntity extends Slime {
         this.fragments.forEach(WormFragment::fragmentTick);
 
         if (this.horizontalCollision) {
-            //TODO death
+            String riderName = this.getRiderName();
+            if (riderName == null) {
+                return;
+            }
+            Bukkit.broadcast(Components.wallElimination(riderName));
+            Vec3 pos = this.position().add(0, 1, 0);
+            for (Entity passenger : this.getPassengers()) {
+                passenger.dismountTo(pos.x, pos.y, pos.z);
+            }
+            this.gameService.eliminatePlayer(this.rider);
+            this.discard();
         }
     }
 
@@ -189,6 +205,10 @@ public class WormEntity extends Slime {
 
     public boolean isSpeeding() {
         return this.boostTicksRemaining > 0;
+    }
+
+    public int getWormSize() {
+        return this.fragments.size();
     }
 
     private void sendPointsActionBar(ServerPlayer serverPlayer) {
@@ -245,7 +265,8 @@ public class WormEntity extends Slime {
             return;
         }
         if (currentSize > size) {
-            for (int i = currentSize; i >= size; i--) {
+            int toRemove = currentSize - size;
+            for (int i = 0; i < toRemove; i++) {
                 WormFragment wormFragment = this.fragments.removeLast();
                 wormFragment.remove(RemovalReason.DISCARDED);
             }
@@ -254,7 +275,7 @@ public class WormEntity extends Slime {
             for (int i = currentSize; i < size; i++) {
                 WormFragment peek = this.fragments.isEmpty() ? null : this.fragments.getLast();
                 Vec3 position = peek == null ? this.position() : peek.position().subtract(0, peek.getEyeHeight(), 0);
-                WormFragment wormFragment = new WormFragment(this.level(), position, this, peek, skin, i);
+                WormFragment wormFragment = new WormFragment(this.level(), position, this, peek, skin, i, foodFactory);
                 this.fragments.add(wormFragment);
                 this.level().addFreshEntity(wormFragment);
             }

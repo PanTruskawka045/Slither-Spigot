@@ -30,6 +30,11 @@ public class Components {
                 .replaceText(builder -> builder.matchLiteral("%arg1").replacement(Component.text(killer).color(NamedTextColor.RED)));
     }
 
+    public static Component wallElimination(String victim) {
+        return Component.text("%arg0 crashed into a wall").color(NamedTextColor.GRAY)
+                .replaceText(builder -> builder.matchLiteral("%arg0").replacement(Component.text(victim).color(NamedTextColor.RED)));
+    }
+
     public static Component wormPoints(int points) {
         String formattedPoints = String.format(Locale.ROOT, "%,d", points);
         return Component.text("Points: ").color(NamedTextColor.GRAY)

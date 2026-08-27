@@ -1,6 +1,9 @@
 package me.pan_truskawka045.Slither.worm;
 
 import lombok.Getter;
+import me.pan_truskawka045.Slither.food.FoodColor;
+import me.pan_truskawka045.Slither.food.FoodFactory;
+import me.pan_truskawka045.Slither.food.FoodReason;
 import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -12,9 +15,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.craftbukkit.entity.CraftEntity;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class WormFragment extends ArmorStand {
@@ -23,16 +24,19 @@ public class WormFragment extends ArmorStand {
     @Getter
     private final WormEntity parent;
     private final WormFragment previous;
+    private final FoodFactory foodFactory;
     private final int color;
 
     private double scale = 1;
     private int ticksWithoutPrevious = 0;
 
-    public WormFragment(Level level, Vec3 position, WormEntity parent, WormFragment previous, AbstractWormSkin skin, int index) {
+    public WormFragment(Level level, Vec3 position, WormEntity parent, WormFragment previous, AbstractWormSkin skin,
+                        int index, FoodFactory foodFactory) {
         super(level, position.x, position.y, position.z);
 
         this.parent = parent;
         this.previous = previous;
+        this.foodFactory = foodFactory;
         this.color = index == 0 ? skin.getHeadColor() : skin.getBodyColor(index - 1);
         this.setInvisible(true);
         this.setNoGravity(true);
@@ -72,7 +76,7 @@ public class WormFragment extends ArmorStand {
                         .offset(0.3, 0.3, 0.3)
                         .spawn();
 
-                //TODO add food drop spawn
+                spawnFoodDrops();
                 this.discard();
                 return;
             }
@@ -88,7 +92,7 @@ public class WormFragment extends ArmorStand {
                     .offset(0.3, 0.3, 0.3)
                     .spawn();
 
-            //TODO add food drop spawn
+            spawnFoodDrops();
             this.discard();
             return;
         }
@@ -170,6 +174,21 @@ public class WormFragment extends ArmorStand {
                 .receivers(64, false)
                 .offset(0.2 * this.scale, 0.2 * this.scale, 0.2 * this.scale)
                 .spawn();
+    }
+
+    private void spawnFoodDrops() {
+        int count = Math.min(this.parent.getPoints() / this.parent.getWormSize() / 2 / 3, 30);
+        FoodColor[] colors = FoodColor.values();
+        Vec3 position = this.position();
+
+        for (int i = 0; i < count; i++) {
+            double radius = Math.random() * this.scale * 1.5;
+            double angle = Math.random() * Math.TAU;
+            FoodColor color = colors[(int) (Math.random() * colors.length)];
+            Location location = new Location(this.level().getWorld(),
+                    position.x + radius * Math.cos(angle), 101, position.z + radius * Math.sin(angle));
+            this.foodFactory.create(location, color, FoodReason.DROP);
+        }
     }
 
 }

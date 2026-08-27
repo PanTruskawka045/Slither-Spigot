@@ -31,7 +31,7 @@ public class GameService {
     }
 
     public void joinPlayer(SlitherUser user, WormSkinType skinType) {
-        double[] position = randomPosOnMap();
+        double[] position = randomPosOnMap(180);
 
         user.getPlayer().teleport(new Location(world, position[0], 115, position[1], -180, 0));
 
@@ -55,10 +55,14 @@ public class GameService {
         foodFactory.create(new Location(world, position[0], 101, position[1]), color, FoodReason.NATURAL);
     }
 
-    private double[] randomPosOnMap() {
-        double radius = Math.sqrt(Math.random()) * 253 / 2;
-        double angle = Math.random() * 2 * Math.PI;
+    private double[] randomPosOnMap(int diameter) {
+        double radius = Math.sqrt(Math.random()) * diameter / 2;
+        double angle = Math.random() * Math.TAU;
         return new double[]{radius * Math.cos(angle) + 128.5, radius * Math.sin(angle) + 128.5};
+    }
+
+    private double[] randomPosOnMap() {
+        return randomPosOnMap(253);
     }
 
 }
