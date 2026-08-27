@@ -109,6 +109,10 @@ public class SpigotUtil {
         return ((CraftPlayer) player).getHandle();
     }
 
+    public ServerPlayer getServerPlayer(SlitherUser user) {
+        return getServerPlayer(user.getPlayer());
+    }
+
     public DedicatedServer getDedicatedServer() {
         return ((CraftServer) Bukkit.getServer()).getServer();
     }

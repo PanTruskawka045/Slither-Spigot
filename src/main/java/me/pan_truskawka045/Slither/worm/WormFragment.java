@@ -1,5 +1,6 @@
 package me.pan_truskawka045.Slither.worm;
 
+import lombok.Getter;
 import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
@@ -8,12 +9,15 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.util.Vector;
 
 public class WormFragment extends ArmorStand {
 
+    public static final int DEATH_TIMEOUT = 2;
+    @Getter
     private final WormEntity parent;
     private final WormFragment previous;
 
@@ -35,8 +39,7 @@ public class WormFragment extends ArmorStand {
         this.persist = false;
     }
 
-    @Override
-    public void tick() {
+    void fragmentTick() {
         super.tick();
         if (this.previous == null) {
             tickHead();
@@ -46,11 +49,47 @@ public class WormFragment extends ArmorStand {
         updateScale();
     }
 
-    private void tickBody() {
-        if (this.previous.isRemoved() && ++this.ticksWithoutPrevious >= 10) {
-            //TODO add smoke particles
+    boolean belongsTo(WormEntity worm) {
+        return this.parent == worm;
+    }
+
+    @Override
+    public void tick() {
+        if (this.previous == null) {
+            if (!this.parent.isAlive() && ++this.ticksWithoutPrevious >= DEATH_TIMEOUT) {
+                Vec3 position = this.position();
+
+                Particle.SMOKE.builder()
+                        .count(20)
+                        .location(this.level().getWorld(), position.x, position.y + 0.5, position.z)
+                        .receivers(64, false)
+                        .offset(0.3, 0.3, 0.3)
+                        .spawn();
+
+                //TODO add food drop spawn
+                this.discard();
+                return;
+            }
+            return;
+        }
+        if (!this.previous.isAlive() && ++this.ticksWithoutPrevious >= DEATH_TIMEOUT) {
+            Vec3 position = this.position();
+
+            Particle.SMOKE.builder()
+                    .count(20)
+                    .location(this.level().getWorld(), position.x, position.y + 0.5, position.z)
+                    .receivers(64, false)
+                    .offset(0.3, 0.3, 0.3)
+                    .spawn();
+
             //TODO add food drop spawn
             this.discard();
+            return;
+        }
+    }
+
+    private void tickBody() {
+        if (!this.previous.isAlive()) {
             return;
         }
 
@@ -81,14 +120,11 @@ public class WormFragment extends ArmorStand {
     }
 
     private void tickHead() {
-        if (this.parent.isRemoved()) {
-            if (++this.ticksWithoutPrevious >= 10) {
-                this.discard();
-            }
+        if (!this.parent.isAlive()) {
             return;
         }
-        this.ticksWithoutPrevious = 0;
 
+        this.ticksWithoutPrevious = 0;
         CraftEntity bukkitEntity = this.parent.getBukkitEntity();
         Location location = bukkitEntity.getLocation().clone().add(0, bukkitEntity.getEyeHeight(), 0);
 

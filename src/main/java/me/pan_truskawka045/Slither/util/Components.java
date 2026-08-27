@@ -22,4 +22,10 @@ public class Components {
     public static final Component SKIN_NOT_SELECTED = Component.text(">").color(NamedTextColor.GRAY);
     public static final Component SKIN_SELECTED = Component.text(">").color(NamedTextColor.GREEN);
 
+    public static Component elimination(String victim, String killer) {
+        return Component.text("%arg0 was eliminated by %arg1").color(NamedTextColor.GRAY)
+                .replaceText(builder -> builder.matchLiteral("%arg0").replacement(Component.text(victim).color(NamedTextColor.RED)))
+                .replaceText(builder -> builder.matchLiteral("%arg1").replacement(Component.text(killer).color(NamedTextColor.RED)));
+    }
+
 }

@@ -1,12 +1,16 @@
 package me.pan_truskawka045.Slither.worm;
 
 import me.pan_truskawka045.Slither.food.FoodStorage;
+import me.pan_truskawka045.Slither.game.GameService;
 import me.pan_truskawka045.Slither.skin.AbstractWormSkin;
+import me.pan_truskawka045.Slither.user.SlitherUser;
+import me.pan_truskawka045.Slither.util.Components;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -14,7 +18,9 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Input;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.bukkit.Bukkit;
 
 import java.util.Stack;
 
@@ -27,6 +33,8 @@ public class WormEntity extends Slime {
 
     private final FoodStorage foodStorage;
     private final AbstractWormSkin skin;
+    private final GameService gameService;
+    private final SlitherUser rider;
 
     private int points = 20;
     //    private int length = 20;
@@ -35,10 +43,12 @@ public class WormEntity extends Slime {
     private int ticksWithoutPassenger = 0;
 
 
-    public WormEntity(Level level, FoodStorage foodStorage, AbstractWormSkin skin) {
+    public WormEntity(SlitherUser rider, Level level, FoodStorage foodStorage, AbstractWormSkin skin, GameService gameService) {
         super(EntityType.SLIME, level);
         this.foodStorage = foodStorage;
         this.skin = skin;
+        this.gameService = gameService;
+        this.rider = rider;
 
         setNoGravity(true);
         setDeltaMovement(Vec3.ZERO);
@@ -90,6 +100,27 @@ public class WormEntity extends Slime {
         } else if (++this.ticksWithoutPassenger >= 10) {
             this.discard();
         }
+
+        Vec3 forward = new Vec3(Math.cos(this.angle), 0, Math.sin(this.angle));
+        AABB collisionBox = this.getBoundingBox().expandTowards(forward.scale(this.getBbWidth()));
+        level.getEntitiesOfClass(WormFragment.class, collisionBox,
+                        wormFragment -> !wormFragment.belongsTo(this))
+                .stream()
+                .map(WormFragment::getParent)
+                .findFirst()
+                .ifPresent(killer -> {
+                    String riderName = killer.getRiderName();
+                    if (riderName == null) {
+                        return;
+                    }
+                    Bukkit.broadcast(Components.elimination(this.getRiderName(), riderName));
+                    Vec3 pos = this.position().add(0, 1, 0);
+                    for (Entity passenger : this.getPassengers()) {
+                        passenger.dismountTo(pos.x, pos.y, pos.z);
+                    }
+                    this.gameService.eliminatePlayer(this.rider);
+                    this.discard();
+                });
     }
 
     private void tickPassenger(ServerPlayer serverPlayer) {
@@ -102,10 +133,18 @@ public class WormEntity extends Slime {
         }
     }
 
+    private String getRiderName() {
+        if (!this.passengers.isEmpty() && this.passengers.getFirst() instanceof ServerPlayer serverPlayer) {
+            return serverPlayer.getScoreboardName();
+        }
+        return null;
+    }
+
     @Override
     public void tick() {
         this.move();
         super.tick();
+        this.fragments.forEach(WormFragment::fragmentTick);
 
         if (this.horizontalCollision) {
             //TODO death
@@ -159,7 +198,7 @@ public class WormEntity extends Slime {
         if (currentSize < size) {
             for (int i = currentSize; i < size; i++) {
                 WormFragment peek = this.fragments.isEmpty() ? null : this.fragments.getLast();
-                Vec3 position = peek == null ? this.position() : peek.position();
+                Vec3 position = peek == null ? this.position() : peek.position().subtract(0, peek.getEyeHeight(), 0);
                 WormFragment wormFragment = new WormFragment(this.level(), position, this, peek, skin, i);
                 this.fragments.add(wormFragment);
                 this.level().addFreshEntity(wormFragment);
