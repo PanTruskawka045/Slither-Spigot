@@ -1,6 +1,7 @@
 package me.pan_truskawka045.Slither.food;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import lombok.Getter;
 import net.minecraft.world.phys.AABB;
 import org.bukkit.Location;
 
@@ -9,20 +10,32 @@ import java.util.*;
 public class FoodStorage {
 
     private final Map<Integer, List<Food>> points = new Int2ObjectOpenHashMap<>();
+    @Getter
+    private int naturalFoodCount;
 
 
     public synchronized void addPoint(Food food) {
         int hash = getHash(food);
 
-        points.computeIfAbsent(hash, k -> new ArrayList<>()).add(food);
+        List<Food> foods = points.computeIfAbsent(hash, k -> new ArrayList<>());
+        if (foods.contains(food)) {
+            return;
+        }
+
+        foods.add(food);
+        if (food.getReason() == FoodReason.NATURAL) {
+            naturalFoodCount++;
+        }
 
     }
 
     public synchronized void removePoint(Food food) {
         int hash = getHash(food);
         List<Food> list = points.get(hash);
-        if (list != null) {
-            list.remove(food);
+        if (list != null && list.remove(food)) {
+            if (food.getReason() == FoodReason.NATURAL) {
+                naturalFoodCount--;
+            }
             if (list.isEmpty()) {
                 points.remove(hash);
             }

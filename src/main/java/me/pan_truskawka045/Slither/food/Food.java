@@ -1,13 +1,19 @@
 package me.pan_truskawka045.Slither.food;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.bukkit.Location;
 
-@RequiredArgsConstructor
 @Getter
 public class Food {
 
     private final Location location;
+    private final FoodEntity entity;
+    private final FoodReason reason;
+
+    public Food(Location location, FoodEntity entity, FoodReason reason) {
+        this.location = location.clone();
+        this.entity = entity;
+        this.reason = reason;
+    }
 
 }
