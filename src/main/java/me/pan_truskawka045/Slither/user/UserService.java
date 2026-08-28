@@ -84,7 +84,7 @@ public class UserService {
     public void saveUser(SlitherUser user) {
         UUID uuid = user.getPlayer().getUniqueId();
         UserData userData = user.getUserData();
-        Document document = userDataDocument(userData);
+        Document document = userDataDocument(userData).append("name", user.getPlayer().getName());
 
         executor.execute(() -> mongoDBService.getCollection("users")
                 .updateOne(eq("_id", uuid.toString()), new Document("$set", document), new UpdateOptions().upsert(true)));
@@ -182,10 +182,7 @@ public class UserService {
 
     private int compositeChannel(int basePixel, int overlayPixel, int shift) {
         int overlayAlpha = overlayPixel >>> 24;
-        int baseChannel = basePixel >>> shift & 0xFF;
-        int overlayChannel = overlayPixel >>> shift & 0xFF;
-
-        return (overlayChannel * overlayAlpha + baseChannel * (255 - overlayAlpha) + 127) / 255;
+        return (overlayAlpha == 0 ? basePixel : overlayPixel) >>> shift & 0xFF;
     }
 
 }
