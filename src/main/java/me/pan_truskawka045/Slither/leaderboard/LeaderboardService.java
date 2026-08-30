@@ -107,13 +107,13 @@ public class LeaderboardService {
         for (Document user : leaderboardData) {
             String name = user.getString("name");
             long score = user.getLong(scoreField);
-            String record = String.format(Locale.ROOT, "#%02d . %s: %s", place, name == null ? "Unknown" : name, scoreFormatter.apply(score));
+            String record = String.format(Locale.ROOT, "#%02d  . %s: %s", place, name == null ? "Unknown" : name, scoreFormatter.apply(score));
 
             width = Math.max(width, BitmapGlyphInfo.getStringWidth(record));
 
             leaderboard = leaderboard.appendNewline()
                     .append(Component.text(String.format(Locale.ROOT, "#%02d", place)).color(placeColor(place)))
-                    .append(Component.text(" . "))
+                    .append(Component.text("  . "))
                     .append(Component.text(name == null ? "Unknown" : name).color(NamedTextColor.AQUA))
                     .append(Component.text(": ").color(NamedTextColor.GRAY))
                     .append(Component.text(scoreFormatter.apply(score)).color(NamedTextColor.GREEN));
@@ -138,7 +138,7 @@ public class LeaderboardService {
             leaderboardHeadTextDisplays.clear();
 
             Location location = leaderboardDisplay.getLocation();
-            int prefixLength = BitmapGlyphInfo.getStringWidth("#00");
+            int prefixLength = BitmapGlyphInfo.getStringWidth("#00 ");
 
             double offset = width * PIXEL_WIDTH / 2;
 
