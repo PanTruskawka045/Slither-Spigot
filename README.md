@@ -3,6 +3,8 @@
 **Slither.io in Minecraft** is a custom Minecraft minigame where players take control of a growing worm, collect food,
 spend mass to boost, and eliminate other players by forcing them into a body segment or the arena wall.
 
+It uses custom fork of paper for QOA and MongoDB for persistance.
+
 ![A player riding a golden worm inside the arena](.docs/gameplay.png)
 
 ## Lobby and Leaderboards
