@@ -7,11 +7,14 @@ import me.pan_truskawka045.Slither.food.FoodFactory;
 import me.pan_truskawka045.Slither.food.FoodReason;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.skin.WormSkinType;
+import me.pan_truskawka045.Slither.start.StartMenuService;
+import me.pan_truskawka045.Slither.start.menu.StartMenuView;
 import me.pan_truskawka045.Slither.user.SlitherUser;
 import me.pan_truskawka045.Slither.user.UserRepository;
 import me.pan_truskawka045.Slither.util.Components;
 import me.pan_truskawka045.Slither.worm.WormEntity;
 import me.pan_truskawka045.Slither.worm.WormFactory;
+import me.pan_truskawka045.injector.Inject;
 import me.pan_truskawka045.injector.Init;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -29,12 +32,21 @@ public class GameService {
     private final SpigotSlitherPlugin spigotSlitherPlugin;
     private final UserRepository userRepository;
 
+    @Inject
+    private StartMenuService startMenuService;
+
     @Init
     private void init() {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(spigotSlitherPlugin, this::spawnNaturalFood, 20L, 20L);
     }
 
     public void joinPlayer(SlitherUser user, WormSkinType skinType) {
+        StartMenuView startMenuView = user.getStartMenuView();
+        if (startMenuView != null) {
+            startMenuView.removeAll();
+            user.setStartMenuView(null);
+        }
+
         double[] position = randomPosOnMap(180);
 
         user.getPlayer().teleport(new Location(world, position[0], 115, position[1], -180, 0));
@@ -43,6 +55,9 @@ public class GameService {
     }
 
     public void eliminatePlayer(SlitherUser user, WormEntity wormEntity) {
+        if (user.getStartMenuView() != null) {
+            return;
+        }
 
         user.getPlayer().teleport(new Location(world, 128.0, 115, 265.0, -180, 0));
 
@@ -64,6 +79,8 @@ public class GameService {
         if (save) {
             userRepository.save(user);
         }
+
+        startMenuService.sendInitial(user);
 
     }
 
