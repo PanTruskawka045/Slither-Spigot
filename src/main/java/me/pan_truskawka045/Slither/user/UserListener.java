@@ -24,6 +24,8 @@ public class UserListener implements Listener {
     private final UserStorage userStorage;
     private final SlitherUserFactory slitherUserFactory;
     private final UserService userService;
+    private final UserRepository userRepository;
+    private final HeadSkinFetcher headSkinFetcher;
     private final Cache<UUID, UserData> userDataCache = CacheBuilder.newBuilder()
             .expireAfterWrite(10, TimeUnit.SECONDS)
             .build();
@@ -32,15 +34,15 @@ public class UserListener implements Listener {
     public void preLogin(AsyncPlayerPreLoginEvent event) {
         UUID uuid = event.getUniqueId();
         URL skinUrl = event.getPlayerProfile().getTextures().getSkin();
-        CompletableFuture<UserData> userDataFuture = userService.fetchUserData(uuid);
-        CompletableFuture<byte[]> headSkinFuture = userService.fetchHeadSkin(skinUrl);
+        CompletableFuture<UserData> userDataFuture = userRepository.fetch(uuid);
+        CompletableFuture<byte[]> headSkinFuture = headSkinFetcher.fetch(skinUrl);
 
         UserData userData = userDataFuture.join();
         byte[] headSkin = headSkinFuture.join();
 
         if (headSkin != null) {
             userData.setHeadSkin(headSkin);
-            userService.updateHeadSkin(uuid, event.getName(), headSkin);
+            userRepository.updateHeadSkin(uuid, event.getName(), headSkin);
         }
 
         userDataCache.put(uuid, userData);

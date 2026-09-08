@@ -17,10 +17,14 @@ import org.bukkit.World;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Bind(JavaPlugin.class)
 public class SpigotSlitherPlugin extends JavaPlugin {
 
     private final Injector injector = new Injector();
+    private final ExecutorService asyncExecutor = Executors.newFixedThreadPool(4);
 
     @Override
     public void onEnable() {
@@ -47,5 +51,14 @@ public class SpigotSlitherPlugin extends JavaPlugin {
 
     public void registerListener(Listener listener) {
         getServer().getPluginManager().registerEvents(listener, this);
+    }
+
+    public ExecutorService getAsyncExecutor() {
+        return asyncExecutor;
+    }
+
+    @Override
+    public void onDisable() {
+        asyncExecutor.shutdown();
     }
 }

@@ -9,7 +9,7 @@ import me.pan_truskawka045.Slither.start.menu.StartMenuView;
 import me.pan_truskawka045.Slither.start.menu.TextDisplayFactory;
 import me.pan_truskawka045.Slither.start.skin.SkinPreview;
 import me.pan_truskawka045.Slither.user.SlitherUser;
-import me.pan_truskawka045.Slither.user.UserService;
+import me.pan_truskawka045.Slither.user.UserRepository;
 import me.pan_truskawka045.Slither.user.UserStorage;
 import me.pan_truskawka045.Slither.util.Components;
 import me.pan_truskawka045.Slither.util.SpigotUtil;
@@ -32,7 +32,7 @@ public class StartMenuService {
     private final UserStorage userStorage;
     private final World world;
     private final GameService gameService;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     public void sendInitial(SlitherUser user) {
         StartMenuView startMenuView = new StartMenuView(user);
@@ -124,7 +124,7 @@ public class StartMenuService {
     private void selectSkin(SlitherUser user, StartMenuView startMenuView, MenuButton skinsList, WormSkinType skinType) {
         startMenuView.setSkinType(skinType);
         user.getUserData().setSelectedSkin(skinType);
-        userService.saveUser(user);
+        userRepository.save(user);
         updateSkinList(user, startMenuView, skinsList);
     }
 

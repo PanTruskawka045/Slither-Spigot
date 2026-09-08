@@ -9,7 +9,6 @@ import java.util.Locale;
 
 public class Components {
 
-    // Uzupełnij treścią wyświetlaną po lewej stronie menu startowego.
     public static final Component LEFT_SIDE_TEXT = Component.empty();
 
     public static final Component JOIN_GAME = Component.text("Join Game").decorate(TextDecoration.BOLD);

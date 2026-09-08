@@ -21,11 +21,7 @@ import org.bukkit.entity.Display.Billboard;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.util.Transformation;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.function.LongFunction;
 
 @Log4j2
@@ -34,8 +30,8 @@ public class LeaderboardService {
     private static final String SURVIVAL_TIME_LEADERBOARD_ID = "survival-time";
     private static final String POINTS_LEADERBOARD_ID = "points";
 
-    private final double PIXEL_WIDTH = 0.025;
-    private final double LINE_HEIGHT = PIXEL_WIDTH * 10;
+    private static final double PIXEL_WIDTH = 0.025;
+    private static final double LINE_HEIGHT = PIXEL_WIDTH * 10;
 
     private final SpigotSlitherPlugin spigotSlitherPlugin;
     private final World world;
@@ -149,6 +145,10 @@ public class LeaderboardService {
                 double yOffset = (place - 1 - i) * LINE_HEIGHT;
 
                 byte[] head = headSkins.get(i);
+
+                if (head.length != 192) {
+                    continue;
+                }
 
                 Location base = location.clone().add(offset - PIXEL_WIDTH * 2.5, yOffset - PIXEL_WIDTH, -0.005);
 

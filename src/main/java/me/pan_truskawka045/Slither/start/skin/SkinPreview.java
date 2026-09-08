@@ -45,7 +45,7 @@ public class SkinPreview {
 
         Iterator<ArmorStand> iterator = preview.iterator();
 
-        List<Packet<?>> packets = new ArrayList<>();
+        List<Packet<? super ClientGamePacketListener>> packets = new ArrayList<>();
 
 
         for (int i = 0; iterator.hasNext(); i++) {

@@ -8,7 +8,7 @@ import me.pan_truskawka045.Slither.food.FoodReason;
 import me.pan_truskawka045.Slither.food.FoodStorage;
 import me.pan_truskawka045.Slither.skin.WormSkinType;
 import me.pan_truskawka045.Slither.user.SlitherUser;
-import me.pan_truskawka045.Slither.user.UserService;
+import me.pan_truskawka045.Slither.user.UserRepository;
 import me.pan_truskawka045.Slither.util.Components;
 import me.pan_truskawka045.Slither.worm.WormEntity;
 import me.pan_truskawka045.Slither.worm.WormFactory;
@@ -27,7 +27,7 @@ public class GameService {
     private final FoodFactory foodFactory;
     private final FoodStorage foodStorage;
     private final SpigotSlitherPlugin spigotSlitherPlugin;
-    private final UserService userService;
+    private final UserRepository userRepository;
 
     @Init
     private void init() {
@@ -62,7 +62,7 @@ public class GameService {
         }
 
         if (save) {
-            userService.saveUser(user);
+            userRepository.save(user);
         }
 
     }

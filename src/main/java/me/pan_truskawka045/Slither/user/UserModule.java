@@ -7,6 +7,8 @@ public class UserModule extends Module {
     public void init() {
         create(UserStorage.class);
         create(SlitherUserFactory.class);
+        create(UserRepository.class);
+        create(HeadSkinFetcher.class);
 
         create(UserService.class);
 

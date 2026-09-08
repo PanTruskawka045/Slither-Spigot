@@ -8,7 +8,6 @@ public class FoodModule extends Module {
     public void init() {
         create(FoodStorage.class);
         create(FoodFactory.class);
-        create(FoodService.class);
     }
 
 }
